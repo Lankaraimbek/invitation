@@ -533,19 +533,23 @@
       }, 3500);
     }
   </script>
-  <!-- Арын дуу тоглуулагч -->
-<audio id="bgMusic" loop autoplay>
-  <source src="ана--ағайындылар.mp3" type="audio/mpeg">
-</audio>
+<!-- 2 өөр аудио таг үүсгэнэ -->
+<audio id="music1" src="Duu1.mp3" loop></audio>
+<audio id="music2" src="duu2.mp3" loop></audio>
 
 <script>
-  // Хуудас нээгдэхэд дуу автоматаар тоглогдох (браузерын хамгаалалтыг харгалзан)
-  document.addEventListener('click', function() {
-    var audio = document.getElementById('bgMusic');
-    if (audio.paused) {
-      audio.play();
-    }
-  }, { once: true });
+  function playBothSongs() {
+    const audio1 = document.getElementById('music1');
+    const audio2 = document.getElementById('music2');
+
+    // Дууны чангыг тохируулж болно (0.0-оос 1.0 хүртэл)
+    audio1.volume = 0.5; // 1-р дууг дунд чангатай
+    audio2.volume = 0.8; // 2-р дууг ялигүй чангаар
+
+    // Хоёр дууг зэрэг тоглуулах
+    audio1.play();
+    audio2.play();
+  }
 </script>
 </body>
 </html>
