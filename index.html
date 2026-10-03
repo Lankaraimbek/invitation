@@ -16,7 +16,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,400;1,600;1,700&family=Great+Vibes&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
   
-  <!-- Canvas Confetti Library for RSVP animation -->
+  <!-- Canvas Confetti Library -->
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
   <style>
@@ -26,30 +26,13 @@
       min-height: 100vh;
     }
 
-    .font-sans-custom {
-      font-family: 'Montserrat', sans-serif;
-    }
-
-    .font-script {
-      font-family: 'Great Vibes', cursive;
-    }
-
-    /* Gold gradient effects */
-    .gold-gradient-text {
-      background: linear-gradient(135deg, #b8860b 0%, #d4af37 30%, #f3e5ab 50%, #d4af37 70%, #aa7c11 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-
-    .gold-border {
-      border-image: linear-gradient(to bottom, #d4af37, #fef08a, #b8860b) 1;
-    }
+    .font-sans-custom { font-family: 'Montserrat', sans-serif; }
+    .font-script { font-family: 'Great Vibes', cursive; }
 
     .card-shadow {
       box-shadow: 0 20px 40px -15px rgba(12, 74, 110, 0.18), 0 0 0 1px rgba(212, 175, 55, 0.3);
     }
 
-    /* Soft floating animation for flowers */
     @keyframes floatSoft {
       0%, 100% { transform: translateY(0px) rotate(0deg); }
       50% { transform: translateY(-6px) rotate(1deg); }
@@ -62,11 +45,38 @@
 </head>
 <body class="py-6 px-3 sm:px-6 flex flex-col items-center justify-center relative selection:bg-amber-100 selection:text-amber-900">
 
-  <div id="toast" class="fixed top-5 left-1/2 -translate-x-1/2 z-50 hidden px-5 py-3 rounded-2xl shadow-2xl text-xs sm:text-sm font-semibold font-sans-custom transition-all duration-300 flex items-center gap-2 border">
+  <!-- ✉️ ИНТЕРАКТИВ НЭЭЛТИЙН МАНАНТ ЦОНХ (OVERLAY) -->
+  <div id="welcomeOverlay" class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-slate-950/85 backdrop-blur-md transition-all duration-700 p-4">
+    <div class="bg-white/95 border-2 border-amber-300 rounded-3xl p-8 max-w-sm w-full text-center shadow-2xl animate-float">
+      <div class="w-20 h-20 mx-auto mb-4 rounded-full bg-amber-100 border-2 border-amber-400 flex items-center justify-center text-amber-700 text-3xl shadow-inner">
+        <i class="fa-solid fa-envelope-open-text"></i>
+      </div>
+      <h2 class="text-2xl font-bold font-serif text-slate-800 mb-2">СІЗДІ ТОЙҒА ШАҚЫРАМЫЗ!</h2>
+      <p class="text-xs font-sans-custom text-gray-600 mb-6">Арнайы шақыруды көру үшін төмендегі батырманы басыңыз</p>
+
+      <button 
+        onclick="openInvitation()" 
+        class="w-full bg-gradient-to-r from-amber-500 via-amber-600 to-amber-700 hover:from-amber-600 hover:to-amber-800 text-white font-bold py-3.5 px-6 rounded-2xl shadow-xl transition transform active:scale-95 flex items-center justify-center gap-2 text-sm tracking-wide"
+      >
+        <span>✉️ ШАҚЫРУДЫ АШУ</span>
+      </button>
+    </div>
   </div>
 
+  <!-- 🎵 АУДИО УДИРДЛАГЫН ТОВЧ (Баруун дээд буланд) -->
+  <button 
+    id="musicToggleBtn" 
+    onclick="toggleBothSongs()" 
+    class="fixed top-4 right-4 z-40 bg-white/90 backdrop-blur border border-amber-300 shadow-lg text-amber-800 px-3.5 py-2 rounded-full flex items-center gap-2 text-xs font-bold font-sans-custom transition active:scale-95 hover:bg-amber-50"
+  >
+    <i id="musicIcon" class="fa-solid fa-music text-amber-600 animate-spin-slow"></i>
+    <span id="musicBtnText">🎵 Аялгуу</span>
+  </button>
+
+  <div id="toast" class="fixed top-5 left-1/2 -translate-x-1/2 z-50 hidden px-5 py-3 rounded-2xl shadow-2xl text-xs sm:text-sm font-semibold font-sans-custom transition-all duration-300 flex items-center gap-2 border"></div>
+
+  <!-- ИЛГЭЭГЧИЙН УДИРДЛАГА (АДМИН) -->
   <div id="adminPanel" class="w-full max-w-lg bg-white/95 backdrop-blur-md rounded-3xl p-5 mb-6 border-2 border-amber-300/80 shadow-2xl font-sans-custom transition-all duration-300 relative">
-    
     <div class="flex items-center justify-between pb-3 mb-3 border-b border-amber-100">
       <div class="flex items-center gap-2">
         <span class="w-8 h-8 rounded-full bg-amber-100 text-amber-800 flex items-center justify-center text-sm font-bold">
@@ -93,76 +103,49 @@
             class="w-full pl-3 pr-9 py-2.5 text-sm text-slate-900 bg-amber-50/40 border border-amber-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 font-medium"
             oninput="onGuestNameChange(this.value)"
           >
-          <button 
-            onclick="clearGuestName()" 
-            class="absolute right-3 top-2.5 text-gray-400 hover:text-gray-600 text-sm"
-            title="Цэвэрлэх"
-          >
+          <button onclick="clearGuestName()" class="absolute right-3 top-2.5 text-gray-400 hover:text-gray-600 text-sm" title="Цэвэрлэх">
             <i class="fa-solid fa-circle-xmark"></i>
           </button>
         </div>
       </div>
 
-      <!-- Quick Action Buttons -->
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
-        <button 
-          onclick="copyGuestLink()" 
-          class="flex items-center justify-center gap-2 bg-slate-900 hover:bg-slate-800 text-white py-2.5 px-4 rounded-xl text-xs font-bold tracking-wide transition shadow-md active:scale-95"
-        >
+        <button onclick="copyGuestLink()" class="flex items-center justify-center gap-2 bg-slate-900 hover:bg-slate-800 text-white py-2.5 px-4 rounded-xl text-xs font-bold tracking-wide transition shadow-md active:scale-95">
           <i class="fa-solid fa-link text-amber-400"></i>
           <span>ЛИНК ХУУЛБАРЛАХ</span>
         </button>
         
-        <button 
-          onclick="shareWhatsApp()" 
-          class="flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white py-2.5 px-4 rounded-xl text-xs font-bold tracking-wide transition shadow-md active:scale-95"
-        >
+        <button onclick="shareWhatsApp()" class="flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white py-2.5 px-4 rounded-xl text-xs font-bold tracking-wide transition shadow-md active:scale-95">
           <i class="fa-brands fa-whatsapp text-sm"></i>
           <span>WHATSAPP-ААР ИЛГЭЭХ</span>
         </button>
       </div>
 
-      <!-- Preview Mode Switch & Clear -->
       <div class="flex items-center justify-between pt-2 text-xs border-t border-gray-100">
-        <button 
-          onclick="switchToGuestPreview()" 
-          class="text-amber-800 hover:text-amber-950 font-bold flex items-center gap-1.5 underline decoration-amber-400 underline-offset-4"
-        >
+        <button onclick="switchToGuestPreview()" class="text-amber-800 hover:text-amber-950 font-bold flex items-center gap-1.5 underline decoration-amber-400 underline-offset-4">
           <i class="fa-solid fa-eye"></i>
           <span>Зочинд хэрхэн харагдахыг үзэх</span>
         </button>
-
-        <span id="urlPreviewText" class="text-[10px] text-gray-400 font-mono truncate max-w-[180px]">
-          #guest=...
-        </span>
+        <span id="urlPreviewText" class="text-[10px] text-gray-400 font-mono truncate max-w-[180px]">#guest=...</span>
       </div>
     </div>
   </div>
 
+  <!-- ҮНДСЭН УРИЛГЫН КАРТ -->
   <div id="invitationCard" class="card-shadow relative w-full max-w-xl bg-white rounded-[32px] overflow-hidden my-auto border-[6px] border-amber-100/80">
-    
-    <!-- Top Left & Bottom Right Blue Floral Watercolor Accents -->
     <div class="absolute -top-12 -left-12 w-48 h-48 bg-sky-200/50 rounded-full blur-3xl pointer-events-none"></div>
     <div class="absolute -bottom-12 -right-12 w-48 h-48 bg-amber-200/50 rounded-full blur-3xl pointer-events-none"></div>
 
-    <!-- Kazakh Gold Ornament Frame Decorator -->
     <div class="pt-8 px-6 text-center relative z-10">
-      
-      <!-- Crown Traditional Pattern Header -->
       <div class="mx-auto w-36 h-36 relative flex items-center justify-center mb-1 animate-float">
         <svg viewBox="0 0 200 200" class="w-full h-full text-amber-600 filter drop-shadow-sm" fill="none">
-          <!-- Outer Decorative Circle -->
           <circle cx="100" cy="100" r="88" stroke="url(#goldGrad)" stroke-width="2.5" fill="none"/>
           <circle cx="100" cy="100" r="82" stroke="url(#goldGrad)" stroke-width="1" stroke-dasharray="3,3"/>
-          
-          <!-- Kazakh Horns (Қошқар мүйіз) Central Emblem -->
           <path d="M100 20 C118 45, 140 45, 140 68 C140 85, 122 95, 100 78 C78 95, 60 85, 60 68 C60 45, 82 45, 100 20 Z" fill="url(#goldGrad)"/>
           <path d="M100 180 C118 155, 140 155, 140 132 C140 115, 122 105, 100 122 C78 105, 60 115, 60 132 C60 155, 82 155, 100 180 Z" fill="url(#goldGrad)"/>
           <path d="M20 100 C45 118, 45 140, 68 140 C85 140, 95 122, 78 100 C95 78, 85 60, 68 60 C45 60, 45 82, 20 100 Z" fill="url(#goldGrad)"/>
           <path d="M180 100 C155 118, 155 140, 132 140 C115 140, 105 122, 122 100 C105 78, 115 60, 132 60 C155 60, 155 82, 180 100 Z" fill="url(#goldGrad)"/>
-          
           <circle cx="100" cy="100" r="12" fill="url(#goldGrad)"/>
-
           <defs>
             <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
               <stop offset="0%" stop-color="#b8860b" />
@@ -174,12 +157,7 @@
         </svg>
       </div>
 
-      <!-- Main Invitation Header Title -->
-      <h1 class="text-5xl sm:text-6xl font-bold tracking-wide text-sky-950 font-serif my-1 drop-shadow-xs">
-        Шақыру
-      </h1>
-      
-      <!-- Elegant Divider -->
+      <h1 class="text-5xl sm:text-6xl font-bold tracking-wide text-sky-950 font-serif my-1 drop-shadow-xs">Шақыру</h1>
       <div class="flex items-center justify-center my-3 gap-2">
         <div class="h-[1px] w-24 bg-gradient-to-r from-transparent via-amber-500 to-transparent"></div>
         <div class="w-2.5 h-2.5 rotate-45 border border-amber-600 bg-amber-200"></div>
@@ -188,37 +166,29 @@
     </div>
 
     <div class="px-6 sm:px-12 py-2 text-center text-slate-800 relative z-10">
-      
-      <!-- Dynamic Guest Name Salutation Box -->
       <div class="my-4 py-3.5 px-4 rounded-2xl border-y-2 border-amber-300/80 bg-amber-50/40 min-h-[64px] flex items-center justify-center shadow-inner">
         <p class="text-lg sm:text-xl font-bold italic text-sky-950 tracking-wide leading-relaxed">
           ҚҰРМЕТТІ <span id="cardGuestName" class="text-amber-800 font-extrabold underline decoration-amber-400 decoration-2 underline-offset-4 px-2 font-serif">........................................</span> СІЗ(ДЕР)ДІ
         </p>
       </div>
 
-      <!-- Celebration Invitation Body Text -->
       <div class="space-y-4 my-6 text-base sm:text-lg leading-relaxed font-serif text-slate-800 text-justify sm:text-center">
         <p class="italic">
           Бір шаңырақта үш қуаныш тоғысып, асқар таудай әкеміз <strong class="text-slate-900 font-extrabold">Х.Амалхан</strong> мен аяулы анамыз <strong class="text-slate-900 font-extrabold">И.Айгүлдің «АЛТЫН ЖҰЛДЫЗ»</strong> орденімен марапатталуы, немересі <strong class="text-slate-900 font-extrabold">А.Қызыр-Әлінің «ТІЛ АШАР»</strong> қуанышы және жаңа үйіміздің бой көтеруі бізге үлкен қуаныш сыйлайды.
         </p>
-        
         <p class="italic pt-2">
           Осы қуаныштарымызды сіздермен бірге бөлісіп, ақ тілектеріңізді арнап, қуанышымызға ортақ болып, төрімізден орын алуға шақырамыз!
         </p>
       </div>
 
-      <!-- Hosts Section -->
       <div class="my-6 py-4 border-t border-b border-amber-300/80 bg-gradient-to-r from-transparent via-amber-50/60 to-transparent">
-        <div class="text-xs uppercase tracking-widest text-amber-800 font-bold mb-2 font-sans-custom">
-          ТОЙ ИЕЛЕРІ:
-        </div>
+        <div class="text-xs uppercase tracking-widest text-amber-800 font-bold mb-2 font-sans-custom">ТОЙ ИЕЛЕРІ:</div>
         <div class="text-base sm:text-lg font-bold tracking-wider text-sky-950 font-sans-custom space-y-1">
           <p>Х.АМАЛХАН, И.АЙГҮЛ</p>
           <p>А.АЗАМАТ, Х.ДИНАР</p>
         </div>
       </div>
 
-      <!-- Date & Time Info -->
       <div class="flex flex-col sm:flex-row items-center justify-center gap-3 my-6 text-lg sm:text-xl font-bold text-slate-900 font-serif">
         <div class="bg-amber-100/70 px-6 py-2.5 rounded-2xl border border-amber-300/80 shadow-sm w-full sm:w-auto flex items-center justify-center gap-2">
           <i class="fa-regular fa-calendar-days text-amber-700"></i>
@@ -231,148 +201,155 @@
         </div>
       </div>
 
-      <!-- Location / Venue Details -->
       <div class="my-6 p-4 rounded-2xl bg-gradient-to-b from-sky-50 to-amber-50/50 border border-amber-300/80 shadow-sm">
-        <div class="text-xs uppercase tracking-widest text-amber-800 font-bold mb-1 font-sans-custom">
-          МЕКЕН ЖАЙЫМЫЗ:
-        </div>
-        <div class="text-lg sm:text-xl font-bold text-sky-950 font-serif">
-          Баяннуур сұмыны «Ақтілек» той ханасы
-        </div>
+        <div class="text-xs uppercase tracking-widest text-amber-800 font-bold mb-1 font-sans-custom">МЕКЕН ЖАЙЫМЫЗ:</div>
+        <div class="text-lg sm:text-xl font-bold text-sky-950 font-serif">Баяннуур сұмыны «Ақтілек» той ханасы</div>
       </div>
 
       <div id="rsvpContainer" class="mt-8 pt-4 border-t border-dashed border-amber-300/80 font-sans-custom">
-        <p class="text-xs font-bold uppercase tracking-wider text-amber-900 mb-3">
-          Қатысуыңызды растауыңызды сұраймыз:
-        </p>
-        
+        <p class="text-xs font-bold uppercase tracking-wider text-amber-900 mb-3">Қатысуыңызды растауыңызды сұраймыз:</p>
         <div id="rsvpButtons" class="flex flex-col sm:flex-row items-center justify-center gap-3">
-          <button 
-            onclick="submitRSVP(true)" 
-            class="w-full sm:w-auto flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-6 rounded-2xl shadow-lg transition active:scale-95 flex items-center justify-center gap-2 text-sm"
-          >
+          <button onclick="submitRSVP(true)" class="w-full sm:w-auto flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-6 rounded-2xl shadow-lg transition active:scale-95 flex items-center justify-center gap-2 text-sm">
             <i class="fa-solid fa-circle-check"></i>
             <span>Келемін (I will attend)</span>
           </button>
-          
-          <button 
-            onclick="submitRSVP(false)" 
-            class="w-full sm:w-auto flex-1 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold py-3 px-6 rounded-2xl transition active:scale-95 flex items-center justify-center gap-2 text-sm"
-          >
+          <button onclick="submitRSVP(false)" class="w-full sm:w-auto flex-1 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold py-3 px-6 rounded-2xl transition active:scale-95 flex items-center justify-center gap-2 text-sm">
             <i class="fa-solid fa-circle-xmark"></i>
             <span>Келе алмаймын</span>
           </button>
         </div>
-
         <div id="rsvpResponse" class="hidden my-3 p-3.5 rounded-2xl text-sm font-bold animate-fade-in"></div>
       </div>
-
     </div>
 
-    <!-- Bottom Ornament Footer -->
     <div class="pt-4 pb-8 text-center relative overflow-hidden bg-gradient-to-t from-amber-50/60 to-transparent">
       <div class="flex justify-between items-center px-8 opacity-80">
         <svg width="40" height="40" viewBox="0 0 40 60" fill="none" class="text-amber-600">
           <path d="M20 0 L20 60 M5 20 C15 20, 20 10, 20 30 C20 50, 15 40, 5 40 M35 20 C25 20, 20 10, 20 30 C20 50, 25 40, 35 40" stroke="currentColor" stroke-width="2"/>
         </svg>
-        <span class="text-amber-800 text-xs font-sans-custom font-bold tracking-widest uppercase">
-          ✦ Тойымызға хош келдіңіздер ✦
-        </span>
+        <span class="text-amber-800 text-xs font-sans-custom font-bold tracking-widest uppercase">✦ Тойымызға хош келдіңіздер ✦</span>
         <svg width="40" height="40" viewBox="0 0 40 60" fill="none" class="text-amber-600">
           <path d="M20 0 L20 60 M5 20 C15 20, 20 10, 20 30 C20 50, 15 40, 5 40 M35 20 C25 20, 20 10, 20 30 C20 50, 25 40, 35 40" stroke="currentColor" stroke-width="2"/>
         </svg>
       </div>
     </div>
-
   </div>
 
-  <!-- Admin Floating Trigger (Only shown if Admin or returning from preview) -->
-  <button 
-    id="floatingAdminGear" 
-    onclick="toggleAdminPanel()" 
-    class="fixed bottom-5 right-5 z-40 bg-slate-900 text-amber-400 p-3.5 rounded-full shadow-2xl hover:bg-slate-800 transition active:scale-90 flex items-center justify-center font-sans-custom text-xs gap-2 border border-amber-300"
-    title="Илгээгчийн тохиргоо"
-  >
-    <i class="fa-solid fa-gear text-base animate-spin-slow"></i>
+  <button id="floatingAdminGear" onclick="toggleAdminPanel()" class="fixed bottom-5 right-5 z-40 bg-slate-900 text-amber-400 p-3.5 rounded-full shadow-2xl hover:bg-slate-800 transition active:scale-90 flex items-center justify-center font-sans-custom text-xs gap-2 border border-amber-300" title="Илгээгчийн тохиргоо">
+    <i class="fa-solid fa-gear text-base"></i>
     <span class="hidden sm:inline font-bold pr-1">Админ горим</span>
   </button>
 
+  <!-- 🎵 2 ӨӨР АУДИО ФАЙЛЫН ЭЛЕМЕНТ (Duu1.mp3 & duu2.mp3) -->
+  <audio id="music1" src="Duu1.mp3" loop preload="auto"></audio>
+  <audio id="music2" src="duu2.mp3" loop preload="auto"></audio>
+
   <script>
-    // State Variables
-    let isAdminMode = true;
+    let isPlaying = false;
 
-    // Initialize application on load
-    window.addEventListener('DOMContentLoaded', () => {
-      evaluateModeFromUrl();
-    });
+    // 🔊 Хоёр дууг зэрэг тоглуулах функц
+    function playBothSongs() {
+      const audio1 = document.getElementById('music1');
+      const audio2 = document.getElementById('music2');
 
-    // Listen to hash changes (e.g. user edits URL hash directly)
-    window.addEventListener('hashchange', () => {
-      evaluateModeFromUrl();
-    });
+      if (!audio1 || !audio2) return;
 
-    // Extract guest name from URL hash or query params
+      audio1.volume = 0.5; // 1-р дууны чанга (50%)
+      audio2.volume = 0.8; // 2-р дууны чанга (80%)
+
+      const p1 = audio1.play();
+      const p2 = audio2.play();
+
+      Promise.all([p1, p2]).then(() => {
+        isPlaying = true;
+        updateMusicUI(true);
+      }).catch(err => {
+        console.log("Аудио тоглуулахад алдаа гарлаа:", err);
+      });
+    }
+
+    // ⏸️ Хоёр дууг зэрэг зогсоох/үргэлжлүүлэх функц
+    function toggleBothSongs() {
+      const audio1 = document.getElementById('music1');
+      const audio2 = document.getElementById('music2');
+
+      if (isPlaying) {
+        audio1.pause();
+        audio2.pause();
+        isPlaying = false;
+        updateMusicUI(false);
+      } else {
+        playBothSongs();
+      }
+    }
+
+    // 🎨 Тоглуулагчийн товчлуурын харагдах байдлыг шинэчлэх
+    function updateMusicUI(active) {
+      const icon = document.getElementById('musicIcon');
+      const text = document.getElementById('musicBtnText');
+      
+      if (active) {
+        icon.className = "fa-solid fa-music text-amber-600 animate-spin-slow";
+        text.textContent = "🎵 Тоглож байна";
+      } else {
+        icon.className = "fa-solid fa-volume-xmark text-gray-400";
+        text.textContent = "🔇 Дуугүй";
+      }
+    }
+
+    // ✉️ Нээлтийн цонхны товчлуур дээр дарахад урилгыг нээж, 2 дууг зэрэг эхлүүлэх
+    function openInvitation() {
+      const overlay = document.getElementById('welcomeOverlay');
+      overlay.classList.add('opacity-0', 'pointer-events-none');
+      setTimeout(() => { overlay.classList.add('hidden'); }, 700);
+
+      playBothSongs();
+    }
+
+    // --- АДМИН & ЗОЧНЫ ЛИНКНИЙ ЛОГИК ---
+    window.addEventListener('DOMContentLoaded', () => { evaluateModeFromUrl(); });
+    window.addEventListener('hashchange', () => { evaluateModeFromUrl(); });
+
     function getGuestFromUrl() {
-      // 1. Check Hash (#guest=Name)
       if (window.location.hash) {
         const hashStr = window.location.hash.substring(1);
         const params = new URLSearchParams(hashStr);
         const guest = params.get('guest') || params.get('name');
         if (guest) return decodeURIComponent(guest);
       }
-
-      // 2. Check Search query (?guest=Name)
       const urlParams = new URLSearchParams(window.location.search);
       const queryGuest = urlParams.get('guest') || urlParams.get('name');
       if (queryGuest) return decodeURIComponent(queryGuest);
-
       return "";
     }
 
-    // Determine whether to launch Guest Mode or Admin Mode
     function evaluateModeFromUrl() {
       const guestName = getGuestFromUrl();
-
       if (guestName && guestName.trim() !== '') {
-        // GUEST MODE: Personal link detected! Hide all admin panels & gears.
         setGuestMode(guestName);
       } else {
-        // ADMIN MODE: Default creator mode with setup options
         setAdminMode();
       }
     }
 
-    // Activate Guest Mode (Hides ALL admin elements)
     function setGuestMode(guestName) {
-      isAdminMode = false;
-
-      // Hide Admin panel and gear icon completely
       document.getElementById('adminPanel').classList.add('hidden');
       document.getElementById('floatingAdminGear').classList.add('hidden');
-
-      // Update Guest name on the card
       document.getElementById('guestInput').value = guestName;
       updateCardNameDisplay(guestName);
     }
 
-    // Activate Admin Mode (Shows setup panel)
     function setAdminMode() {
-      isAdminMode = true;
-
       document.getElementById('adminPanel').classList.remove('hidden');
       document.getElementById('floatingAdminGear').classList.remove('hidden');
-
       const currentInput = document.getElementById('guestInput').value;
       updateCardNameDisplay(currentInput);
       updateUrlPreview();
     }
 
-    // Handle typing in guest input box
     function onGuestNameChange(val) {
       updateCardNameDisplay(val);
       updateUrlPreview();
-      
-      // Keep hash updated dynamically in browser bar for creator
       if (val.trim()) {
         window.history.replaceState(null, null, '#guest=' + encodeURIComponent(val.trim()));
       } else {
@@ -380,7 +357,6 @@
       }
     }
 
-    // Update text inside invitation card
     function updateCardNameDisplay(name) {
       const cardDisplay = document.getElementById('cardGuestName');
       if (name && name.trim() !== '') {
@@ -390,34 +366,25 @@
       }
     }
 
-    // Generate Shareable Guest URL
     function buildGuestShareUrl() {
       const guestName = document.getElementById('guestInput').value.trim();
       const baseUrl = window.location.href.split('#')[0].split('?')[0];
-
       if (!guestName) return baseUrl;
-
-      // Generates dual Hash + Query compatible link so it works on any platform/file scheme
       return `${baseUrl}#guest=${encodeURIComponent(guestName)}`;
     }
 
-    // Update link preview text box
     function updateUrlPreview() {
       const link = buildGuestShareUrl();
       const previewElem = document.getElementById('urlPreviewText');
-      if (previewElem) {
-        previewElem.textContent = link.replace(window.location.origin, '');
-      }
+      if (previewElem) { previewElem.textContent = link.replace(window.location.origin, ''); }
     }
 
-    // Clear guest input
     function clearGuestName() {
       document.getElementById('guestInput').value = '';
       onGuestNameChange('');
       showToast('Зочны нэр цэвэрлэгдлээ', 'info');
     }
 
-    // Copy unique link for the guest
     function copyGuestLink() {
       const guestName = document.getElementById('guestInput').value.trim();
       if (!guestName) {
@@ -425,15 +392,11 @@
         document.getElementById('guestInput').focus();
         return;
       }
-
       const shareUrl = buildGuestShareUrl();
-
-      // Reliable cross-iframe copy method
       const textInput = document.createElement('textarea');
       textInput.value = shareUrl;
       document.body.appendChild(textInput);
       textInput.select();
-
       try {
         document.execCommand('copy');
         showToast(`"${guestName}"-д зориулсан линк хуулагдлаа!`, 'success');
@@ -443,7 +406,6 @@
       document.body.removeChild(textInput);
     }
 
-    // Share via WhatsApp
     function shareWhatsApp() {
       const guestName = document.getElementById('guestInput').value.trim();
       if (!guestName) {
@@ -451,105 +413,46 @@
         document.getElementById('guestInput').focus();
         return;
       }
-
       const shareUrl = buildGuestShareUrl();
       const message = `Құрметті ${guestName}!\nСізді тойымызға шақырамыз.\n\nЖеке онлайн шақыру сілтемесі:\n${shareUrl}`;
-
-      const waApiUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(message)}`;
-      window.open(waApiUrl, '_blank');
+      window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(message)}`, '_blank');
     }
 
-    // Switch to Preview Mode as Guest
     function switchToGuestPreview() {
-      const guestName = document.getElementById('guestInput').value.trim();
-      if (!guestName) {
-        showToast('Зочны нэр оруулсны дараа шалгана уу.', 'info');
-        return;
-      }
-
-      // Hide panels to simulate guest view
       document.getElementById('adminPanel').classList.add('hidden');
-      showToast('Зочны горимд шилжлээ. Буцах бол баруун доод буланг дарна уу.', 'info');
+      showToast('Зочны горимд шилжлээ.', 'info');
     }
 
-    // Toggle Floating Gear Panel
     function toggleAdminPanel() {
       const adminPanel = document.getElementById('adminPanel');
-      if (adminPanel.classList.contains('hidden')) {
-        adminPanel.classList.remove('hidden');
-        adminPanel.scrollIntoView({ behavior: 'smooth' });
-      } else {
-        adminPanel.classList.add('hidden');
-      }
+      adminPanel.classList.toggle('hidden');
     }
 
-    // Guest RSVP Action Function
     function submitRSVP(isAttending) {
       const responseBox = document.getElementById('rsvpResponse');
       const buttonsBox = document.getElementById('rsvpButtons');
-
       buttonsBox.classList.add('hidden');
       responseBox.classList.remove('hidden');
 
       if (isAttending) {
         responseBox.className = "my-3 p-4 rounded-2xl text-center bg-emerald-100 text-emerald-900 border border-emerald-300 font-sans-custom";
-        responseBox.innerHTML = `
-          <div class="text-base font-bold mb-1">🎉 Рақмет! Қатысуыңызды растадыңыз.</div>
-          <div class="text-xs text-emerald-700">Тойымызда күтеміз!</div>
-        `;
-        
-        // Trigger celebratory confetti burst
+        responseBox.innerHTML = `<div class="text-base font-bold mb-1">🎉 Рақмет! Қатысуыңызды растадыңыз.</div><div class="text-xs text-emerald-700">Тойымызда күтеміз!</div>`;
         if (typeof confetti === 'function') {
-          confetti({
-            particleCount: 80,
-            spread: 70,
-            origin: { y: 0.7 }
-          });
+          confetti({ particleCount: 80, spread: 70, origin: { y: 0.7 } });
         }
       } else {
         responseBox.className = "my-3 p-4 rounded-2xl text-center bg-slate-100 text-slate-800 border border-slate-300 font-sans-custom";
-        responseBox.innerHTML = `
-          <div class="text-base font-bold mb-1">Ақпаратыңызға рақмет!</div>
-          <div class="text-xs text-slate-600">Келесі қуаныштарда кездескенше.</div>
-        `;
+        responseBox.innerHTML = `<div class="text-base font-bold mb-1">Ақпаратыңызға рақмет!</div><div class="text-xs text-slate-600">Келесі қуаныштарда кездескенше.</div>`;
       }
     }
 
-    // Toast notification utility
     function showToast(msg, type = 'success') {
       const toast = document.getElementById('toast');
-      toast.classList.remove('hidden', 'bg-emerald-900', 'text-emerald-100', 'bg-slate-900', 'text-amber-300', 'bg-rose-900', 'text-rose-100');
-
-      if (type === 'success') {
-        toast.classList.add('bg-slate-900', 'text-amber-300', 'border-amber-400');
-        toast.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-400"></i><span>${msg}</span>`;
-      } else {
-        toast.classList.add('bg-slate-900', 'text-slate-100', 'border-slate-700');
-        toast.innerHTML = `<i class="fa-solid fa-circle-info text-amber-400"></i><span>${msg}</span>`;
-      }
-
-      setTimeout(() => {
-        toast.classList.add('hidden');
-      }, 3500);
+      toast.classList.remove('hidden');
+      toast.className = "fixed top-5 left-1/2 -translate-x-1/2 z-50 px-5 py-3 rounded-2xl shadow-2xl text-xs sm:text-sm font-semibold font-sans-custom transition-all duration-300 flex items-center gap-2 border bg-slate-900 text-amber-300 border-amber-400";
+      toast.innerHTML = `<i class="fa-solid fa-circle-info text-amber-400"></i><span>${msg}</span>`;
+      setTimeout(() => { toast.classList.add('hidden'); }, 3500);
     }
   </script>
-<!-- 2 өөр аудио таг үүсгэнэ -->
-<audio id="music1" src="Duu1.mp3" loop></audio>
-<audio id="music2" src="duu2.mp3" loop></audio>
-
-<script>
-  function playBothSongs() {
-    const audio1 = document.getElementById('music1');
-    const audio2 = document.getElementById('music2');
-
-    // Дууны чангыг тохируулж болно (0.0-оос 1.0 хүртэл)
-    audio1.volume = 0.5; // 1-р дууг дунд чангатай
-    audio2.volume = 0.8; // 2-р дууг ялигүй чангаар
-
-    // Хоёр дууг зэрэг тоглуулах
-    audio1.play();
-    audio2.play();
-  }
-</script>
 </body>
 </html>
