@@ -533,5 +533,19 @@
       }, 3500);
     }
   </script>
+  <!-- Арын дуу тоглуулагч -->
+<audio id="bgMusic" loop autoplay>
+  <source src="https://www.youtube.com/watch?v=fxhegpIEVt0&list=RDfxhegpIEVt0&start_radio=1&rv=gG-geeJxGgM" type="audio/mpeg">
+</audio>
+
+<script>
+  // Хуудас нээгдэхэд дуу автоматаар тоглогдох (браузерын хамгаалалтыг харгалзан)
+  document.addEventListener('click', function() {
+    var audio = document.getElementById('bgMusic');
+    if (audio.paused) {
+      audio.play();
+    }
+  }, { once: true });
+</script>
 </body>
 </html>
